@@ -43,9 +43,9 @@ export default function Sidebar() {
           <Image
             src="/flight-opp.webp"
             alt="Williams Flight Department"
-            width={190}
-            height={80}
-            className="w-full h-auto"
+            width={220}
+            height={100}
+            style={{ width: "100%", height: "auto" }}
             priority
           />
         </div>

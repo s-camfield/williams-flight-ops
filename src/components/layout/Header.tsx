@@ -13,11 +13,11 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="hidden md:flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium">
+        <button className="hidden md:flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 text-sm font-medium bg-white hover:bg-slate-50">
           All Aircraft <ChevronDown size={16} />
         </button>
 
-        <div className="hidden lg:flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 w-[360px]">
+        <div className="hidden lg:flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 w-[360px] bg-white">
           <Search size={17} className="text-slate-400" />
           <input
             placeholder="Search flights, tail #, airport..."
