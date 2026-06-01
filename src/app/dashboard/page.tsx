@@ -13,7 +13,9 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <AircraftStatusBar />
+      <div className="hidden lg:block">
+        <AircraftStatusBar />
+      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_560px] gap-5">
         <FlightCalendar
@@ -23,7 +25,9 @@ export default function DashboardPage() {
           onSelectFlight={setSelectedFlight}
         />
 
-        <SelectedFlightPanel flight={selectedFlight} />
+        <div className="hidden xl:block">
+          <SelectedFlightPanel flight={selectedFlight} />
+        </div>
       </div>
     </DashboardLayout>
   );
