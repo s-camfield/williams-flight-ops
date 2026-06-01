@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Plane, Send, UserRound } from "lucide-react";
+import { CalendarDays, Plane, Send, FileText } from "lucide-react";
 
 const items = [
   { label: "Schedule", href: "/dashboard", icon: CalendarDays },
+  { label: "Add Trip", href: "/new-flight", icon: Plane },
   { label: "Request", href: "/owner-request", icon: Send, primary: true },
-  { label: "Trip", href: "/trip-sheet", icon: Plane },
-  { label: "People", href: "/personnel", icon: UserRound },
+  { label: "Trip", href: "/trip-sheet", icon: FileText },
 ];
 
 export default function MobileBottomNav() {
@@ -21,7 +21,8 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-xs font-bold text-slate-600"
+              scroll={false}
+              className="flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-xs font-bold text-slate-600 active:bg-slate-100"
             >
               <span
                 className={

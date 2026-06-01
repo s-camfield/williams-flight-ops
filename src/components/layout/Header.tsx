@@ -1,7 +1,24 @@
+"use client";
+
 import Link from "next/link";
-import { Bell, ChevronDown, Search, Send, ShieldCheck } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowLeft, Bell, ChevronDown, Search, Send, ShieldCheck } from "lucide-react";
+
+function getMobileTitle(pathname: string) {
+  if (pathname === "/dashboard") return "Schedule";
+  if (pathname === "/new-flight") return "Add Trip";
+  if (pathname === "/owner-request") return "Request Flight";
+  if (pathname === "/trip-sheet") return "Trip Sheet";
+  if (pathname === "/personnel") return "People";
+  if (pathname === "/requests") return "Requests";
+  return "Flight Ops";
+}
 
 export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const isDashboard = pathname === "/dashboard";
+
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200">
       <div className="hidden lg:flex h-[78px] items-center justify-between px-7">
@@ -43,18 +60,32 @@ export default function Header() {
 
       <div className="lg:hidden px-4 py-3">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase font-bold text-[#007DB8]">
-              Williams Flight Dept.
-            </p>
-            <h1 className="text-xl font-bold text-slate-900">
-              Schedule
-            </h1>
+          <div className="flex items-center gap-3 min-w-0">
+            {!isDashboard && (
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="h-11 w-11 shrink-0 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-700"
+                aria-label="Go back"
+              >
+                <ArrowLeft size={20} />
+              </button>
+            )}
+
+            <div className="min-w-0">
+              <p className="text-xs uppercase font-bold text-[#007DB8]">
+                Williams Flight Dept.
+              </p>
+              <h1 className="text-xl font-bold text-slate-900 truncate">
+                {getMobileTitle(pathname)}
+              </h1>
+            </div>
           </div>
 
           <Link
             href="/owner-request"
-            className="rounded-2xl bg-[#0066D6] text-white px-5 py-3 font-bold flex items-center gap-2 shadow"
+            scroll={false}
+            className="shrink-0 rounded-2xl bg-[#0066D6] text-white px-4 py-3 font-bold flex items-center gap-2 shadow"
           >
             <Send size={18} />
             Request
