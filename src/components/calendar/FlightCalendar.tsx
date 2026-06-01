@@ -41,9 +41,9 @@ export default function FlightCalendar({
         </div>
 
         <div className="flex flex-wrap gap-4 rounded-2xl border border-slate-200 p-4 mb-5 text-sm font-semibold">
-          <Legend color="bg-blue-700" label="N359W" />
-          <Legend color="bg-green-600" label="N358E" />
-          <Legend color="bg-orange-600" label="N442F" />
+          <Legend color="bg-blue-700" label="N399W" />
+          <Legend color="bg-green-600" label="N590E" />
+          <Legend color="bg-orange-600" label="N44FJ" />
           <Legend color="bg-purple-500" label="Maintenance" />
           <Legend color="bg-teal-500" label="Training" />
           <Legend border label="Major Event" />
