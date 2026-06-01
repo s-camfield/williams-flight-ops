@@ -51,7 +51,7 @@ export default function CrewAvailabilityBoard() {
 
                   {days.map((day) => {
                     const assignment = crewAvailability.find(
-                      (entry) => entry.day === day && entry.crew === member.name
+                      (entry) => entry.day === day && entry.person === member.name
                     );
 
                     return (
@@ -93,7 +93,7 @@ export default function CrewAvailabilityBoard() {
               <div className="mt-4 space-y-2 text-sm">
                 <Info label="Medical" value={`Expires ${member.medicalExpires}`} />
                 <Info label="Passport" value={`Expires ${member.passportExpires}`} />
-                <Info label="Training" value={member.training} />
+                <Info label="Training" value="Current" />
               </div>
 
               <p className="text-sm text-slate-500 mt-4">{member.notes}</p>

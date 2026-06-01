@@ -25,4 +25,5 @@ export interface Personnel {
   trainingStatus?: string;
   trainingExpires?: string;
   notes?: string;
+  training: string;
 }
