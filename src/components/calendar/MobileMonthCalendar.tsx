@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Flight, FlightLeg } from "../../types/flight";
 import type { CalendarHold } from "../../types/calendar";
 import { getAircraftClasses, getHoldClasses } from "../../lib/calendarStyles";
@@ -14,10 +14,12 @@ interface MobileMonthCalendarProps {
   onSelectFlight: (flight: Flight) => void;
 }
 
-type DayItem = {
-  flight: Flight;
-  leg: FlightLeg;
-};
+const months = [
+  "July 2026",
+  "August 2026",
+  "September 2026",
+  "October 2026",
+];
 
 export default function MobileMonthCalendar({
   flights,
@@ -25,13 +27,15 @@ export default function MobileMonthCalendar({
   selectedFlightId,
   onSelectFlight,
 }: MobileMonthCalendarProps) {
+  const [monthIndex, setMonthIndex] = useState(1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [expandedFlight, setExpandedFlight] = useState<Flight | null>(null);
 
   const days = Array.from({ length: 35 }).map((_, i) => i - 2);
+  const isAugust = months[monthIndex] === "August 2026";
 
   const selectedDayItems = useMemo(() => {
-    if (!selectedDay) return [];
+    if (!selectedDay || !isAugust) return [];
 
     return flights
       .filter((flight) => flight.day === selectedDay)
@@ -41,18 +45,26 @@ export default function MobileMonthCalendar({
           leg,
         }))
       );
-  }, [flights, selectedDay]);
+  }, [flights, selectedDay, isAugust]);
 
   const selectedDayFlights = useMemo(() => {
-    if (!selectedDay) return [];
-
+    if (!selectedDay || !isAugust) return [];
     return flights.filter((flight) => flight.day === selectedDay);
-  }, [flights, selectedDay]);
+  }, [flights, selectedDay, isAugust]);
+
+  function changeMonth(direction: "prev" | "next") {
+    setMonthIndex((current) => {
+      if (direction === "prev") return Math.max(0, current - 1);
+      return Math.min(months.length - 1, current + 1);
+    });
+    setSelectedDay(null);
+    setExpandedFlight(null);
+  }
 
   function openDay(day: number) {
     if (day < 1 || day > 31) return;
 
-    const dayFlights = flights.filter((flight) => flight.day === day);
+    const dayFlights = isAugust ? flights.filter((flight) => flight.day === day) : [];
 
     setSelectedDay(day);
 
@@ -100,18 +112,30 @@ export default function MobileMonthCalendar({
 
       <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900">August 2026</h2>
+          <button
+            type="button"
+            onClick={() => changeMonth("prev")}
+            className="h-11 w-11 rounded-2xl border border-slate-200 flex items-center justify-center disabled:opacity-30"
+            disabled={monthIndex === 0}
+            aria-label="Previous month"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-slate-900">{months[monthIndex]}</h2>
             <p className="text-sm text-slate-500">Tap a day to view flights</p>
           </div>
 
-          <Link
-            href="/dashboard"
-            scroll={false}
-            className="rounded-xl bg-[#0066D6] px-4 py-2 text-sm font-bold text-white"
+          <button
+            type="button"
+            onClick={() => changeMonth("next")}
+            className="h-11 w-11 rounded-2xl border border-slate-200 flex items-center justify-center disabled:opacity-30"
+            disabled={monthIndex === months.length - 1}
+            aria-label="Next month"
           >
-            Today
-          </Link>
+            <ChevronRight size={20} />
+          </button>
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-slate-500">
@@ -123,8 +147,8 @@ export default function MobileMonthCalendar({
         <div className="mt-2 grid grid-cols-7 gap-1">
           {days.map((day, index) => {
             const validDay = day >= 1 && day <= 31;
-            const dayFlights = flights.filter((flight) => flight.day === day);
-            const dayHolds = holds.filter((hold) => hold.day === day);
+            const dayFlights = isAugust ? flights.filter((flight) => flight.day === day) : [];
+            const dayHolds = isAugust ? holds.filter((hold) => hold.day === day) : [];
 
             const dayItems = dayFlights.flatMap((flight) =>
               flight.legs.map((leg) => ({ flight, leg }))
@@ -187,7 +211,7 @@ export default function MobileMonthCalendar({
                           hold.type
                         )}`}
                       >
-                        {hold.type === "Major Event" ? "Event" : hold.type}
+                        {shortHoldLabel(hold.type)}
                       </div>
                     ))}
                 </div>
@@ -195,6 +219,12 @@ export default function MobileMonthCalendar({
             );
           })}
         </div>
+
+        {!isAugust && (
+          <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-center text-sm text-slate-500">
+            No demo flights loaded for this month yet.
+          </div>
+        )}
       </section>
 
       {selectedDay && (
@@ -202,7 +232,7 @@ export default function MobileMonthCalendar({
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 p-4">
             <div>
               <p className="text-xs uppercase font-bold text-[#007DB8]">
-                August {selectedDay}
+                {months[monthIndex].split(" ")[0]} {selectedDay}
               </p>
               <h3 className="text-xl font-bold text-slate-900">
                 {selectedDayItems.length || selectedDayFlights.length} Scheduled
@@ -268,7 +298,7 @@ export default function MobileMonthCalendar({
 
               {!selectedDayFlights.length && (
                 <p className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
-                  No flights scheduled. Holds or events may be listed on the calendar.
+                  No flights scheduled.
                 </p>
               )}
             </div>
@@ -408,4 +438,11 @@ function getAircraftDot(color: string) {
   if (color === "green") return "bg-green-600";
   if (color === "orange") return "bg-orange-600";
   return "bg-slate-500";
+}
+
+function shortHoldLabel(type: string) {
+  if (type === "Maintenance") return "MX";
+  if (type === "Training") return "TRG";
+  if (type === "Major Event") return "EVT";
+  return type;
 }
