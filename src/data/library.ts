@@ -13,22 +13,21 @@ export const passengers: Passenger[] = [
     initials: "GGW",
     role: "Owner",
     vip: true,
-    preferences:
-      "Owner identifier. Show star on calendar. Preferred bottled water, coffee, privacy notes restricted.",
+    preferences: "Owner identifier. Show star on calendar when onboard.",
   },
   {
     id: 2,
     name: "Executive Assistant",
     initials: "EA",
-    role: "Executive Support",
-    preferences: "Seat near front cabin. Usually coordinates ground transportation.",
+    role: "Favorite Passenger",
+    preferences: "Usually coordinates ground transportation.",
   },
   {
     id: 3,
-    name: "Engineering Team",
-    initials: "ENG",
-    role: "Business Group",
-    preferences: "Standard catering. Confirm final passenger count before release.",
+    name: "Guest Passenger",
+    initials: "GP",
+    role: "Favorite Passenger",
+    preferences: "Example saved favorite passenger.",
   },
 ];
 
@@ -44,14 +43,6 @@ export const fbos: Fbo[] = [
   },
   {
     id: 2,
-    airport: "KTEB",
-    name: "Signature Aviation",
-    phone: "201-555-0182",
-    address: "Teterboro Airport, Teterboro, NJ",
-    notes: "Backup option.",
-  },
-  {
-    id: 3,
     airport: "KLAS",
     name: "Signature Aviation",
     phone: "702-555-0100",
@@ -59,11 +50,27 @@ export const fbos: Fbo[] = [
     preferred: true,
   },
   {
-    id: 4,
+    id: 3,
     airport: "KBOS",
     name: "Signature Aviation",
     phone: "617-555-0199",
     address: "Boston Logan Airport",
+    preferred: true,
+  },
+  {
+    id: 4,
+    airport: "KORD",
+    name: "Atlantic Aviation",
+    phone: "773-555-0190",
+    address: "Chicago O'Hare",
+    preferred: true,
+  },
+  {
+    id: 5,
+    airport: "KEGE",
+    name: "Vail Valley Jet Center",
+    phone: "970-555-0160",
+    address: "Eagle County Regional",
     preferred: true,
   },
 ];
@@ -82,7 +89,6 @@ export const hotels: HotelVendor[] = [
     airport: "KLAS",
     name: "Four Seasons Las Vegas",
     phone: "702-555-1000",
-    notes: "Executive/business trip option.",
     preferred: true,
   },
   {
@@ -119,6 +125,14 @@ export const rentalCars: RentalCarVendor[] = [
     vehiclePreference: "Black SUV",
     preferred: true,
   },
+  {
+    id: 4,
+    airport: "KORD",
+    company: "Black SUV Service",
+    phone: "773-555-2000",
+    vehiclePreference: "Black SUV",
+    preferred: true,
+  },
 ];
 
 export const cateringVendors: CateringVendor[] = [
@@ -143,6 +157,13 @@ export const cateringVendors: CateringVendor[] = [
     airport: "KBOS",
     vendor: "Gourmet Aviation",
     phone: "617-555-3000",
+    preferred: true,
+  },
+  {
+    id: 4,
+    airport: "KORD",
+    vendor: "Atlantic Catering",
+    phone: "773-555-3000",
     preferred: true,
   },
 ];

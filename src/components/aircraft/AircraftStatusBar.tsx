@@ -15,9 +15,7 @@ export default function AircraftStatusBar() {
             <h2 className="text-2xl font-bold text-slate-900">{item.tail}</h2>
           </div>
 
-          <span className={getStatusClasses(item.status)}>
-            {item.status}
-          </span>
+          <span className={getStatusClasses(item.status)}>{item.status}</span>
         </div>
       ))}
     </section>

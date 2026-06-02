@@ -1,19 +1,19 @@
 export const aircraft = [
   {
-    tail: "N359W",
-    model: "Gulfstream G650",
+    tail: "N399W",
+    model: "Citation X",
     color: "blue",
     status: "Available",
   },
   {
-    tail: "N358E",
-    model: "Gulfstream G550",
+    tail: "N590E",
+    model: "Global Express",
     color: "green",
     status: "Scheduled",
   },
   {
-    tail: "N442F",
-    model: "Falcon",
+    tail: "N44FJ",
+    model: "CJ4",
     color: "orange",
     status: "Available",
   },

@@ -152,7 +152,7 @@ export default function EditFlightForm() {
           <div className="mt-5 space-y-3">
             <PreviewRow label="Route" value={`${flight.route.from} → ${destination}`} />
             <PreviewRow label="Legs" value={`${legs.length}`} />
-            <PreviewRow label="Owner" value={flight.ownerOnboard ? "★ GGW" : "No"} />
+            <PreviewRow label="GGW" value={flight.ownerOnboard ? "★ GGW" : "No"} />
             <PreviewRow label="FBO Options" value={`${airportFbos.length}`} />
           </div>
         </section>
