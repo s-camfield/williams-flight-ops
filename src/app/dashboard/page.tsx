@@ -14,10 +14,16 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className="hidden lg:block">
+        <div className="mb-5">
+          <h2 className="text-3xl font-bold text-slate-900">Schedule</h2>
+          <p className="text-slate-500 mt-1">
+            Main flight calendar with aircraft, owner, maintenance, and training visibility.
+          </p>
+        </div>
         <AircraftStatusBar />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_560px] gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_520px] gap-5">
         <FlightCalendar
           flights={flights}
           holds={calendarHolds}
