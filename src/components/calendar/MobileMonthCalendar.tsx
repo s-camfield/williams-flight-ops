@@ -14,12 +14,58 @@ interface MobileMonthCalendarProps {
   onSelectFlight: (flight: Flight) => void;
 }
 
-const months = [
-  "July 2026",
-  "August 2026",
-  "September 2026",
-  "October 2026",
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
+
+function getFlightDateParts(flight: Flight) {
+  const date = new Date(`${flight.date}T12:00:00`);
+  return {
+    year: date.getFullYear(),
+    month: date.getMonth(),
+    day: date.getDate(),
+  };
+}
+
+function getCalendarDays(year: number, month: number) {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPreviousMonth = new Date(year, month, 0).getDate();
+
+  return Array.from({ length: 42 }).map((_, index) => {
+    const dayNumber = index - firstDay + 1;
+
+    if (dayNumber < 1) {
+      return {
+        day: daysInPreviousMonth + dayNumber,
+        currentMonth: false,
+      };
+    }
+
+    if (dayNumber > daysInMonth) {
+      return {
+        day: dayNumber - daysInMonth,
+        currentMonth: false,
+      };
+    }
+
+    return {
+      day: dayNumber,
+      currentMonth: true,
+    };
+  });
+}
 
 export default function MobileMonthCalendar({
   flights,
@@ -27,44 +73,73 @@ export default function MobileMonthCalendar({
   selectedFlightId,
   onSelectFlight,
 }: MobileMonthCalendarProps) {
-  const [monthIndex, setMonthIndex] = useState(1);
+  const today = new Date();
+  const [visibleMonth, setVisibleMonth] = useState(today.getMonth());
+  const [visibleYear, setVisibleYear] = useState(today.getFullYear());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [expandedFlight, setExpandedFlight] = useState<Flight | null>(null);
 
-  const days = Array.from({ length: 35 }).map((_, i) => i - 2);
-  const isAugust = months[monthIndex] === "August 2026";
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 21 }).map((_, index) => currentYear - 5 + index);
+  }, []);
 
-  const selectedDayItems = useMemo(() => {
-    if (!selectedDay || !isAugust) return [];
-
-    return flights
-      .filter((flight) => flight.day === selectedDay)
-      .flatMap((flight) =>
-        flight.legs.map((leg) => ({
-          flight,
-          leg,
-        }))
-      );
-  }, [flights, selectedDay, isAugust]);
+  const calendarDays = useMemo(
+    () => getCalendarDays(visibleYear, visibleMonth),
+    [visibleYear, visibleMonth]
+  );
 
   const selectedDayFlights = useMemo(() => {
-    if (!selectedDay || !isAugust) return [];
-    return flights.filter((flight) => flight.day === selectedDay);
-  }, [flights, selectedDay, isAugust]);
+    if (!selectedDay) return [];
+
+    return flights.filter((flight) => {
+      const parts = getFlightDateParts(flight);
+      return (
+        parts.year === visibleYear &&
+        parts.month === visibleMonth &&
+        parts.day === selectedDay
+      );
+    });
+  }, [flights, selectedDay, visibleMonth, visibleYear]);
+
+  const selectedDayItems = selectedDayFlights.flatMap((flight) =>
+    flight.legs.map((leg) => ({ flight, leg }))
+  );
 
   function changeMonth(direction: "prev" | "next") {
-    setMonthIndex((current) => {
-      if (direction === "prev") return Math.max(0, current - 1);
-      return Math.min(months.length - 1, current + 1);
-    });
+    if (direction === "prev") {
+      if (visibleMonth === 0) {
+        setVisibleMonth(11);
+        setVisibleYear((year) => year - 1);
+      } else {
+        setVisibleMonth((month) => month - 1);
+      }
+    }
+
+    if (direction === "next") {
+      if (visibleMonth === 11) {
+        setVisibleMonth(0);
+        setVisibleYear((year) => year + 1);
+      } else {
+        setVisibleMonth((month) => month + 1);
+      }
+    }
+
     setSelectedDay(null);
     setExpandedFlight(null);
   }
 
-  function openDay(day: number) {
-    if (day < 1 || day > 31) return;
+  function openDay(day: number, currentMonth: boolean) {
+    if (!currentMonth) return;
 
-    const dayFlights = isAugust ? flights.filter((flight) => flight.day === day) : [];
+    const dayFlights = flights.filter((flight) => {
+      const parts = getFlightDateParts(flight);
+      return (
+        parts.year === visibleYear &&
+        parts.month === visibleMonth &&
+        parts.day === day
+      );
+    });
 
     setSelectedDay(day);
 
@@ -115,23 +190,37 @@ export default function MobileMonthCalendar({
           <button
             type="button"
             onClick={() => changeMonth("prev")}
-            className="h-11 w-11 rounded-2xl border border-slate-200 flex items-center justify-center disabled:opacity-30"
-            disabled={monthIndex === 0}
+            className="h-11 w-11 rounded-2xl border border-slate-200 flex items-center justify-center"
             aria-label="Previous month"
           >
             <ChevronLeft size={20} />
           </button>
 
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-900">{months[monthIndex]}</h2>
-            <p className="text-sm text-slate-500">Tap a day to view flights</p>
+            <h2 className="text-2xl font-bold text-slate-900">
+              {monthNames[visibleMonth]}
+            </h2>
+            <select
+              value={visibleYear}
+              onChange={(event) => {
+                setVisibleYear(Number(event.target.value));
+                setSelectedDay(null);
+                setExpandedFlight(null);
+              }}
+              className="mt-1 rounded-xl border border-slate-200 bg-white px-3 py-1 text-sm font-bold text-slate-700"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button
             type="button"
             onClick={() => changeMonth("next")}
-            className="h-11 w-11 rounded-2xl border border-slate-200 flex items-center justify-center disabled:opacity-30"
-            disabled={monthIndex === months.length - 1}
+            className="h-11 w-11 rounded-2xl border border-slate-200 flex items-center justify-center"
             aria-label="Next month"
           >
             <ChevronRight size={20} />
@@ -145,10 +234,20 @@ export default function MobileMonthCalendar({
         </div>
 
         <div className="mt-2 grid grid-cols-7 gap-1">
-          {days.map((day, index) => {
-            const validDay = day >= 1 && day <= 31;
-            const dayFlights = isAugust ? flights.filter((flight) => flight.day === day) : [];
-            const dayHolds = isAugust ? holds.filter((hold) => hold.day === day) : [];
+          {calendarDays.map((calendarDay, index) => {
+            const dayFlights = flights.filter((flight) => {
+              const parts = getFlightDateParts(flight);
+              return (
+                calendarDay.currentMonth &&
+                parts.year === visibleYear &&
+                parts.month === visibleMonth &&
+                parts.day === calendarDay.day
+              );
+            });
+
+            const dayHolds = calendarDay.currentMonth
+              ? holds.filter((hold) => hold.day === calendarDay.day)
+              : [];
 
             const dayItems = dayFlights.flatMap((flight) =>
               flight.legs.map((leg) => ({ flight, leg }))
@@ -162,11 +261,11 @@ export default function MobileMonthCalendar({
               <button
                 key={index}
                 type="button"
-                onClick={() => openDay(day)}
+                onClick={() => openDay(calendarDay.day, calendarDay.currentMonth)}
                 className={`min-h-[88px] rounded-xl border p-1 text-left transition active:scale-[0.98] ${
-                  selectedDay === day
+                  selectedDay === calendarDay.day && calendarDay.currentMonth
                     ? "border-[#0066D6] bg-blue-50"
-                    : validDay
+                    : calendarDay.currentMonth
                       ? "bg-white border-slate-200"
                       : "bg-slate-50 border-slate-100"
                 }`}
@@ -174,15 +273,13 @@ export default function MobileMonthCalendar({
                 <div className="flex items-center justify-between">
                   <p
                     className={`text-xs font-bold ${
-                      validDay ? "text-slate-700" : "text-slate-300"
+                      calendarDay.currentMonth ? "text-slate-700" : "text-slate-300"
                     }`}
                   >
-                    {day < 1 ? 29 + day : day > 31 ? day - 31 : day}
+                    {calendarDay.day}
                   </p>
 
-                  {hasOwner && (
-                    <span className="text-[11px] text-amber-500">★</span>
-                  )}
+                  {hasOwner && <span className="text-[11px] text-amber-500">★</span>}
                 </div>
 
                 <div className="mt-1 space-y-1">
@@ -219,12 +316,6 @@ export default function MobileMonthCalendar({
             );
           })}
         </div>
-
-        {!isAugust && (
-          <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-center text-sm text-slate-500">
-            No demo flights loaded for this month yet.
-          </div>
-        )}
       </section>
 
       {selectedDay && (
@@ -232,7 +323,7 @@ export default function MobileMonthCalendar({
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 p-4">
             <div>
               <p className="text-xs uppercase font-bold text-[#007DB8]">
-                {months[monthIndex].split(" ")[0]} {selectedDay}
+                {monthNames[visibleMonth]} {selectedDay}
               </p>
               <h3 className="text-xl font-bold text-slate-900">
                 {selectedDayItems.length || selectedDayFlights.length} Scheduled
