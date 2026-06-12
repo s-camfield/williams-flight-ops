@@ -113,11 +113,9 @@ export default function MobileMonthCalendar({ flights, holds, selectedFlightId, 
       <Link
         href="/new-flight"
         scroll={false}
-        className="block rounded-3xl bg-white border border-slate-200 p-4 shadow-sm active:scale-[0.99] transition"
+        className="block rounded-3xl bg-[#0066D6] p-5 text-center text-2xl font-black text-white shadow-md active:scale-[0.99] transition"
       >
-        <p className="text-xs uppercase font-bold text-[#007DB8]">Confirmed</p>
-        <p className="text-xl font-bold text-slate-900 mt-1">Add Trip</p>
-        <p className="text-xs text-slate-500 mt-1">Flight is already going</p>
+        Add Trip
       </Link>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">

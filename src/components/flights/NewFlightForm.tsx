@@ -21,7 +21,6 @@ import {
 import { supabase } from "../../lib/supabase";
 import { useAircraftData } from "../../hooks/useAircraftData";
 import { useCrewData } from "../../hooks/useCrewData";
-import { usePassengerData } from "../../hooks/usePassengerData";
 import AirportField from "./AirportField";
 
 type DraftLeg = {
@@ -68,7 +67,6 @@ const blankTravelGroup: TravelGroup = {
 export default function NewFlightForm() {
   const router = useRouter();
   const { aircraft, loading: aircraftLoading } = useAircraftData();
-  const { passengers, loading: passengerLoading, reload: reloadPassengers } = usePassengerData();
   const { crew, loading: crewLoading } = useCrewData();
 
   const crewOptions = crew.length > 0 ? crew : fallbackCrew;
@@ -89,7 +87,7 @@ export default function NewFlightForm() {
   const [passengersOpen, setPassengersOpen] = useState(true);
   const [crewOpen, setCrewOpen] = useState(true);
 
-  const [selectedPassenger, setSelectedPassenger] = useState("GGW");
+  const [selectedPassenger, setSelectedPassenger] = useState("Guest Passenger");
   const [selectedPassengers, setSelectedPassengers] = useState<string[]>([]);
   const [passengerTravel, setPassengerTravel] = useState<TravelGroup>(blankTravelGroup);
 
@@ -173,24 +171,24 @@ export default function NewFlightForm() {
       return;
     }
 
-    const { error } = await supabase.from("passengers").insert({
-      name: cleanName,
-      initials: cleanName.split(" ").map((part) => part[0]).join("").toUpperCase().slice(0, 3),
-      role: "Passenger",
-      is_favorite: newPassengerFavorite,
-      is_owner: false,
-    });
+    if (newPassengerFavorite) {
+      const { error } = await supabase.from("passengers").insert({
+        name: cleanName,
+        initials: cleanName.split(" ").map((part) => part[0]).join("").toUpperCase().slice(0, 3),
+        role: "Passenger",
+        is_favorite: true,
+        is_owner: false,
+      });
 
-    if (error) {
-      setMessage(`Passenger save error: ${error.message}`);
-      return;
+      if (error) {
+        setMessage(`Passenger save error: ${error.message}`);
+        return;
+      }
     }
 
     setSelectedPassengers((current) => (current.includes(cleanName) ? current : [...current, cleanName]));
-    setSelectedPassenger(cleanName);
     setNewPassengerName("");
     setShowNewPassenger(false);
-    await reloadPassengers();
     setMessage("Passenger added.");
   }
 
@@ -367,7 +365,7 @@ export default function NewFlightForm() {
         <section className="mt-8 rounded-3xl border border-slate-200 p-5">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Flight Legs</h2>
+              <h2 className="text-xl font-bold text-slate-900">Departure Info</h2>
               <p className="text-sm text-slate-500">Each stop can be added as its own leg.</p>
             </div>
 
@@ -434,14 +432,9 @@ export default function NewFlightForm() {
           setOpen={setPassengersOpen}
           selectValue={selectedPassenger}
           setSelectValue={setSelectedPassenger}
-          loading={passengerLoading}
+          loading={false}
           options={[
-            { value: "GGW", label: "GGW" },
-            ...passengers.filter((passenger) => passenger.name !== "GGW").map((passenger) => ({
-              value: passenger.name,
-              label: passenger.name,
-            })),
-            { value: "add-new", label: "+ Add New Passenger" },
+            { value: "Guest Passenger", label: "Guest Passenger" },
           ]}
           addLabel="Add Passenger"
           addPerson={addPassenger}
@@ -450,19 +443,20 @@ export default function NewFlightForm() {
           group={passengerTravel}
           updateGroup={updatePassengerTravel}
           showFboFuel={false}
+          onAddNewPerson={() => setShowNewPassenger(true)}
         />
 
         {showNewPassenger && (
           <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-5">
             <h2 className="text-xl font-bold text-slate-900">Add New Passenger</h2>
             <div className="mt-4 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
-              <input className="input" placeholder="Passenger name" value={newPassengerName} onChange={(event) => setNewPassengerName(event.target.value)} />
+              <input className="input" placeholder="New passenger name" value={newPassengerName} onChange={(event) => setNewPassengerName(event.target.value)} />
               <button type="button" onClick={saveNewPassenger} className="rounded-xl bg-[#0066D6] px-5 py-3 font-bold text-white">
                 Save Passenger
               </button>
               <label className="flex items-center gap-2 text-sm font-bold text-slate-700 md:col-span-2">
                 <input type="checkbox" checked={newPassengerFavorite} onChange={(event) => setNewPassengerFavorite(event.target.checked)} />
-                Favorite passenger / show in dropdown
+                Save to passenger list dropdown
               </label>
             </div>
           </section>
@@ -548,6 +542,7 @@ function TravelGroupSection({
   group,
   updateGroup,
   showFboFuel,
+  onAddNewPerson,
 }: {
   title: string;
   description: string;
@@ -564,6 +559,7 @@ function TravelGroupSection({
   group: TravelGroup;
   updateGroup: (field: keyof TravelGroup, value: string | boolean) => void;
   showFboFuel: boolean;
+  onAddNewPerson?: () => void;
 }) {
   return (
     <section className="mt-8 rounded-3xl border border-slate-200 p-5">
@@ -597,6 +593,16 @@ function TravelGroupSection({
               {addLabel}
             </button>
           </div>
+
+          {onAddNewPerson && (
+            <button
+              type="button"
+              onClick={onAddNewPerson}
+              className="mt-3 w-full rounded-xl border border-[#0066D6] bg-white px-5 py-3 font-bold text-[#0066D6]"
+            >
+              + Add New Passenger
+            </button>
+          )}
 
           <div className="mt-4 flex flex-wrap gap-2">
             {people.map((person) => (
